@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aquelity — Craft Technology That Breathes</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=DM+Mono:wght@300;400&family=Syne:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #07111f;
+            --bg2: #0d1e30;
+            --text: #c8d8f0;
+            --dim: #5a7090;
+            --accent: #5dffd0;
+            --accent2: #3ab8ff;
+            --border: rgba(93, 255, 208, 0.12);
+        }
+
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'Syne', sans-serif;
+            overflow-x: hidden;
+            cursor: none;
+        }
+
+        /* Custom cursor */
+        .cursor {
+            position: fixed;
+            width: 8px; height: 8px;
+            background: var(--accent);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 9999;
+            transform: translate(-50%, -50%);
+            transition: transform 0.1s, opacity 0.3s;
+            mix-blend-mode: screen;
+        }
+        .cursor-ring {
+            position: fixed;
+            width: 32px; height: 32px;
+            border: 1px solid rgba(93, 255, 208, 0.4);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 9998;
+            transform: translate(-50%, -50%);
+            transition: transform 0.15s ease, width 0.3s, height 0.3s;
+        }
+
+        /* Noise texture overlay */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+            pointer-events: none;
+            z-index: 1;
+            opacity: 0.4;
+        }
+
+        /* Nav */
+        nav {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1.5rem 4rem;
+            border-bottom: 1px solid transparent;
+            transition: border-color 0.4s, background 0.4s, backdrop-filter 0.4s;
+        }
+        nav.scrolled {
+            border-color: var(--border);
+            background: rgba(7, 17, 31, 0.85);
+            backdrop-filter: blur(12px);
+        }
+        .nav-logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            text-decoration: none;
+        }
+        .nav-logo img {
+            width: 32px;
+            height: auto;
+            filter: drop-shadow(0 0 8px rgba(93, 255, 208, 0.4));
+        }
+        .nav-logo span {
+            font-family: 'Syne', sans-serif;
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: var(--text);
+            letter-spacing: 2px;
+        }
+        .nav-links {
+            display: flex;
+            gap: 2.5rem;
+            list-style: none;
+        }
+        .nav-links a {
+            font-family: 'DM Mono', monospace;
+            font-size: 0.78rem;
+            color: var(--dim);
+            text-decoration: none;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            transition: color 0.3s;
+        }
+        .nav-links a:hover { color: var(--accent); }
+
+        /* Hero */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 8rem 2rem 4rem;
+            position: relative;
+        }
+
+        /* Ambient glow */
+        .glow-orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(100px);
+            pointer-events: none;
+        }
+        .glow-1 {
+            width: 500px; height: 500px;
+            background: radial-gradient(circle, rgba(93,255,208,0.06), transparent 70%);
+            top: 10%; left: 50%;
+            transform: translateX(-50%);
+            animation: pulse 8s ease-in-out infinite;
+        }
+        .glow-2 {
+            width: 300px; height: 300px;
+            background: radial-gradient(circle, rgba(58,184,255,0.05), transparent 70%);
+            bottom: 20%; right: 10%;
+            animation: pulse 10s ease-in-out infinite reverse;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 0.6; transform: translateX(-50%) scale(1); }
+            50% { opacity: 1; transform: translateX(-50%) scale(1.1); }
+        }
+        .glow-2 { animation: pulse2 10s ease-in-out infinite reverse; }
+        @keyframes pulse2 {
+            0%, 100% { opacity: 0.5; transform: scale(1); }
+            50% { opacity: 0.9; transform: scale(1.15); }
+        }
+
+        .hero-eyebrow {
+            font-family: 'DM Mono', monospace;
+            font-size: 0.72rem;
+            letter-spacing: 3px;
+            color: var(--accent);
+            text-transform: uppercase;
+            margin-bottom: 2rem;
+            opacity: 0;
+            animation: fadeUp 1s ease 0.2s forwards;
+        }
+
+        .hero h1 {
+            font-family: 'Cormorant Garamond', serif;
+            font-weight: 300;
+            font-size: clamp(3rem, 8vw, 7rem);
+            line-height: 1.05;
+            letter-spacing: -1px;
+            color: var(--text);
+            margin-bottom: 0.5rem;
+            opacity: 0;
+            animation: fadeUp 1s ease 0.4s forwards;
+        }
+
+        .hero h1 em {
+            font-style: italic;
+            color: var(--accent);
+        }
+
+        .hero-sub {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: clamp(1rem, 2.5vw, 1.4rem);
+            font-weight: 300;
+            color: var(--dim);
+            margin-bottom: 3rem;
+            max-width: 600px;
+            line-height: 1.7;
+            opacity: 0;
+            animation: fadeUp 1s ease 0.6s forwards;
+        }
+
+        .hero-chinese {
+            font-size: 0.9rem;
+            color: var(--dim);
+            letter-spacing: 6px;
+            font-family: 'Syne', sans-serif;
+            font-weight: 400;
+            margin-bottom: 3rem;
+            opacity: 0;
+            animation: fadeUp 1s ease 0.8s forwards;
+        }
+
+        .hero-cta {
+            display: flex;
+            gap: 1.5rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            opacity: 0;
+            animation: fadeUp 1s ease 1s forwards;
+        }
+
+        .btn-primary {
+            padding: 0.9rem 2.5rem;
+            background: transparent;
+            border: 1px solid var(--accent);
+            color: var(--accent);
+            font-family: 'DM Mono', monospace;
+            font-size: 0.8rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            text-decoration: none;
+            transition: background 0.3s, color 0.3s, box-shadow 0.3s;
+            cursor: none;
+        }
+        .btn-primary:hover {
+            background: rgba(93, 255, 208, 0.08);
+            box-shadow: 0 0 30px rgba(93, 255, 208, 0.15);
+        }
+
+        .btn-ghost {
+            padding: 0.9rem 2.5rem;
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--dim);
+            font-family: 'DM Mono', monospace;
+            font-size: 0.8rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            text-decoration: none;
+            transition: border-color 0.3s, color 0.3s;
+            cursor: none;
+        }
+        .btn-ghost:hover {
+            border-color: var(--dim);
+            color: var(--text);
+        }
+
+        /* Divider */
+        .divider {
+            width: 1px;
+            height: 80px;
+            background: linear-gradient(to bottom, transparent, var(--accent), transparent);
+            margin: 0 auto;
+        }
+
+        /* Section */
+        section {
+            padding: 8rem 4rem;
+            max-width: 1200px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 2;
+        }
+
+        .section-label {
+            font-family: 'DM Mono', monospace;
+            font-size: 0.7rem;
+            letter-spacing: 3px;
+            color: var(--accent);
+            text-transform: uppercase;
+            margin-bottom: 1rem;
+        }
+
+        /* Manifesto */
+        .manifesto-section {
+            border-top: 1px solid var(--border);
+        }
+
+        .manifesto-grid {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 6rem;
+            align-items: start;
+            margin-top: 3rem;
+        }
+
+        .manifesto-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: clamp(2rem, 4vw, 3.5rem);
+            font-weight: 300;
+            line-height: 1.2;
+            color: var(--text);
+            position: sticky;
+            top: 8rem;
+        }
+
+        .manifesto-body p {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.2rem;
+            line-height: 1.9;
+            color: var(--dim);
+            margin-bottom: 1.5rem;
+        }
+
+        .manifesto-body p strong {
+            color: var(--text);
+            font-weight: 400;
+        }
+
+        /* Products */
+        .products-section {
+            border-top: 1px solid var(--border);
+        }
+
+        .products-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            margin-bottom: 4rem;
+        }
+
+        .products-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: clamp(2rem, 4vw, 3rem);
+            font-weight: 300;
+            color: var(--text);
+        }
+
+        .product-card {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0;
+            border: 1px solid var(--border);
+            margin-bottom: 1px;
+            transition: border-color 0.4s, background 0.4s;
+            cursor: none;
+        }
+        .product-card:hover {
+            border-color: rgba(93, 255, 208, 0.3);
+            background: rgba(93, 255, 208, 0.02);
+        }
+
+        .product-info {
+            padding: 3rem;
+            border-right: 1px solid var(--border);
+        }
+
+        .product-name {
+            font-family: 'Syne', sans-serif;
+            font-weight: 700;
+            font-size: 1.4rem;
+            letter-spacing: 1px;
+            color: var(--text);
+            margin-bottom: 0.5rem;
+        }
+
+        .product-tag {
+            font-family: 'DM Mono', monospace;
+            font-size: 0.7rem;
+            color: var(--accent);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 1.5rem;
+        }
+
+        .product-desc {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.05rem;
+            line-height: 1.8;
+            color: var(--dim);
+        }
+
+        .product-status {
+            padding: 3rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-family: 'DM Mono', monospace;
+            font-size: 0.7rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--accent);
+            margin-bottom: 1rem;
+        }
+        .status-dot {
+            width: 6px; height: 6px;
+            background: var(--accent);
+            border-radius: 50%;
+            animation: blink 2s ease-in-out infinite;
+        }
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        .product-link {
+            font-family: 'DM Mono', monospace;
+            font-size: 0.75rem;
+            color: var(--dim);
+            text-decoration: none;
+            letter-spacing: 1px;
+            transition: color 0.3s;
+            align-self: flex-end;
+        }
+        .product-link:hover { color: var(--accent); }
+
+        /* Contact */
+        .contact-section {
+            border-top: 1px solid var(--border);
+            text-align: center;
+        }
+
+        .contact-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: clamp(2.5rem, 5vw, 5rem);
+            font-weight: 300;
+            font-style: italic;
+            color: var(--text);
+            margin-bottom: 2rem;
+        }
+
+        .contact-links {
+            display: flex;
+            justify-content: center;
+            gap: 3rem;
+            flex-wrap: wrap;
+            margin-top: 3rem;
+        }
+
+        .contact-item {
+            display: flex;
+            flex-direction: column;
+            gap: 0.3rem;
+            text-align: center;
+        }
+
+        .contact-label {
+            font-family: 'DM Mono', monospace;
+            font-size: 0.65rem;
+            color: var(--dim);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        .contact-value {
+            font-family: 'Syne', sans-serif;
+            font-size: 0.9rem;
+            color: var(--text);
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+        .contact-value:hover { color: var(--accent); }
+
+        /* Footer */
+        footer {
+            border-top: 1px solid var(--border);
+            padding: 2.5rem 4rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: relative;
+            z-index: 2;
+        }
+
+        .footer-left {
+            font-family: 'DM Mono', monospace;
+            font-size: 0.72rem;
+            color: var(--dim);
+            line-height: 1.8;
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 2rem;
+        }
+
+        .footer-links a {
+            font-family: 'DM Mono', monospace;
+            font-size: 0.7rem;
+            color: var(--dim);
+            text-decoration: none;
+            letter-spacing: 1px;
+            transition: color 0.3s;
+        }
+        .footer-links a:hover { color: var(--accent); }
+
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(24px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Scroll reveal */
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+        .reveal.visible {
+            opacity: 1;
+            transform: none;
+        }
+
+        @media (max-width: 768px) {
+            nav { padding: 1.2rem 1.5rem; }
+            .nav-links { display: none; }
+            section { padding: 5rem 1.5rem; }
+            .manifesto-grid { grid-template-columns: 1fr; gap: 2rem; }
+            .manifesto-title { position: static; }
+            .product-card { grid-template-columns: 1fr; }
+            .product-info { border-right: none; border-bottom: 1px solid var(--border); }
+            footer { flex-direction: column; gap: 1.5rem; text-align: center; padding: 2rem 1.5rem; }
+            .footer-links { flex-wrap: wrap; justify-content: center; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+
+<nav id="nav">
+    <a href="/" class="nav-logo">
+        <img src="logo.png" alt="Aquelity">
+        <span>AQUELITY</span>
+    </a>
+    <ul class="nav-links">
+        <li><a href="#manifesto">Philosophy</a></li>
+        <li><a href="#products">Products</a></li>
+        <li><a href="#contact">Contact</a></li>
+    </ul>
+</nav>
+
+<!-- Hero -->
+<div class="hero">
+    <div class="glow-orb glow-1"></div>
+    <div class="glow-orb glow-2"></div>
+
+    <p class="hero-eyebrow">Shanghai · Est. 2026</p>
+    <h1>Craft technology<br>that <em>breathes.</em></h1>
+    <p class="hero-sub">We build quiet, purposeful tools for the age of AI — instruments that amplify human thought without drowning it.</p>
+    <p class="hero-chinese">静 水 流 深 · 淡 泊 湖 科 技</p>
+    <div class="hero-cta">
+        <a href="#products" class="btn-primary">Our Products</a>
+        <a href="#contact" class="btn-ghost">Get in Touch</a>
+    </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- Manifesto -->
+<section class="manifesto-section" id="manifesto">
+    <p class="section-label reveal">Our Philosophy</p>
+    <div class="manifesto-grid">
+        <div class="manifesto-title reveal">静水流深<br><em style="font-style:italic; color: var(--accent); font-size: 0.6em; letter-spacing: 2px;">Quiet water<br>runs deep.</em></div>
+        <div class="manifesto-body reveal">
+            <p>Our name carries a story. <strong>Aquelity</strong> was born from a lake — 淡泊湖, a name from a university friendship, from a time before business plans and product roadmaps. <em>Aqua</em> for the still water. <em>-elity</em> for the quiet strength within Tranquility.</p>
+            <p>A startup's road is long. There will be resistance, doubt, and storms from every direction. We chose the lake as our anchor — not because it avoids the wind, but because <strong>no wind changes what the lake is</strong>. The surface ripples. The depths hold.</p>
+            <p>This is our operating philosophy: build with patience, ship with intention. We don't chase trends — we observe them, the way a lake reflects the sky without becoming it. Every product we make should be so well-fitted to its purpose that it disappears — <strong>felt, not seen.</strong></p>
+            <p style="color: var(--accent); font-style: italic;">他强任他强，清风拂山岗。<br><span style="font-size: 0.85em; color: var(--dim); font-style: normal;">Let them be strong — the clear wind brushes the mountain ridge.</span></p>
+        </div>
+    </div>
+</section>
+
+<!-- Products -->
+<section class="products-section" id="products">
+    <div class="products-header reveal">
+        <div>
+            <p class="section-label">What We Build</p>
+            <h2 class="products-title">Our Products</h2>
+        </div>
+    </div>
+
+    <div class="product-card reveal">
+        <div class="product-info">
+            <div class="product-name">PromPurse</div>
+            <div class="product-tag">Browser Extension · AI Productivity</div>
+            <p class="product-desc">Stop losing your best AI moments. PromPurse captures prompts, code, and insights from any AI assistant — right-click to save, right-click to reuse. Your knowledge compounds across every conversation, every platform.</p>
+        </div>
+        <div class="product-status">
+            <div>
+                <div class="status-badge">
+                    <span class="status-dot"></span>
+                    In Development
+                </div>
+                <p style="font-family: 'DM Mono', monospace; font-size: 0.72rem; color: var(--dim); line-height: 1.7;">
+                    Chrome · Edge · Firefox<br>
+                    Free · Pro Subscription
+                </p>
+            </div>
+            <a href="mailto:hi@aquelity.com" class="product-link">Join Waitlist →</a>
+        </div>
+    </div>
+
+    <div class="product-card reveal" style="opacity: 0.5;">
+        <div class="product-info">
+            <div class="product-name">More to come.</div>
+            <div class="product-tag">10+ Lightweight Apps · In Incubation</div>
+            <p class="product-desc">We are building a portfolio of quiet, purposeful tools — each one a small instrument in a larger symphony. PromPurse is the first. The lake has room for more.</p>
+        </div>
+        <div class="product-status">
+            <div class="status-badge" style="color: var(--dim);">
+                <span class="status-dot" style="background: var(--dim); animation: none;"></span>
+                Forthcoming
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Contact -->
+<section class="contact-section" id="contact">
+    <p class="section-label reveal" style="text-align:center;">Reach Out</p>
+    <h2 class="contact-title reveal">Let's talk.</h2>
+    <p class="reveal" style="font-family: 'Cormorant Garamond', serif; font-size: 1.15rem; color: var(--dim); max-width: 500px; margin: 0 auto; line-height: 1.8;">
+        Whether you're a potential user, partner, developer, or just curious — there's a door for you.
+    </p>
+    <div class="contact-links reveal">
+        <div class="contact-item">
+            <span class="contact-label">General</span>
+            <a href="mailto:contact@aquelity.com" class="contact-value">contact@aquelity.com</a>
+        </div>
+        <div class="contact-item">
+            <span class="contact-label">Say Hi</span>
+            <a href="mailto:hi@aquelity.com" class="contact-value">hi@aquelity.com</a>
+        </div>
+        <div class="contact-item">
+            <span class="contact-label">Business</span>
+            <a href="mailto:biz@aquelity.com" class="contact-value">biz@aquelity.com</a>
+        </div>
+        <div class="contact-item">
+            <span class="contact-label">Developers</span>
+            <a href="mailto:developer@aquelity.com" class="contact-value">developer@aquelity.com</a>
+        </div>
+        <div class="contact-item">
+            <span class="contact-label">Founder</span>
+            <a href="mailto:brooks@aquelity.com" class="contact-value">brooks@aquelity.com</a>
+        </div>
+        <div class="contact-item">
+            <span class="contact-label">Community</span>
+            <a href="https://discord.gg/UPXgAZp2EC" class="contact-value" target="_blank">Discord →</a>
+        </div>
+    </div>
+</section>
+
+<!-- Footer -->
+<footer>
+    <div class="footer-left">
+        © 2026 Shanghai Aquelity Network Technology Co., Ltd.<br>
+        上海淡泊湖网络科技有限公司
+    </div>
+    <div class="footer-links">
+        <a href="/terms.html">Terms</a>
+        <a href="/privacy.html">Privacy</a>
+        <a href="/refund.html">Refund</a>
+        <a href="http://danbohu.com">danbohu.com</a>
+    </div>
+</footer>
+
+<script>
+    // Custom cursor
+    const cursor = document.getElementById('cursor');
+    const ring = document.getElementById('cursorRing');
+    let mouseX = 0, mouseY = 0, ringX = 0, ringY = 0;
+
+    document.addEventListener('mousemove', e => {
+        mouseX = e.clientX; mouseY = e.clientY;
+        cursor.style.left = mouseX + 'px';
+        cursor.style.top = mouseY + 'px';
+    });
+
+    function animateRing() {
+        ringX += (mouseX - ringX) * 0.12;
+        ringY += (mouseY - ringY) * 0.12;
+        ring.style.left = ringX + 'px';
+        ring.style.top = ringY + 'px';
+        requestAnimationFrame(animateRing);
+    }
+    animateRing();
+
+    // Nav scroll
+    const nav = document.getElementById('nav');
+    window.addEventListener('scroll', () => {
+        nav.classList.toggle('scrolled', window.scrollY > 50);
+    });
+
+    // Scroll reveal
+    const reveals = document.querySelectorAll('.reveal');
+    const observer = new IntersectionObserver(entries => {
+        entries.forEach(e => {
+            if (e.isIntersecting) {
+                e.target.classList.add('visible');
+                observer.unobserve(e.target);
+            }
+        });
+    }, { threshold: 0.1 });
+    reveals.forEach(el => observer.observe(el));
+</script>
+</body>
+</html>
